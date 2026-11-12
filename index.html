@@ -1,0 +1,249 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>근거핀 · 제출 전 검증</title>
+<style>
+  :root{
+    --navy:#1b2a4a; --navy-2:#2c3e66; --ink:#1f2633; --sub:#5b6577; --line:#e3e7ee;
+    --bg:#f3f5f9; --card:#fff; --ok:#1f8a5b; --ok-bg:#e6f4ed; --warn:#e8590c; --warn-bg:#fff0e6;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:#dfe3ea;font-family:-apple-system,"Pretendard","Apple SD Gothic Neo","Malgun Gothic",sans-serif;color:var(--ink)}
+  .app{max-width:480px;min-height:100vh;margin:0 auto;background:var(--bg);display:flex;flex-direction:column;position:relative}
+  header{background:var(--navy);color:#fff;padding:14px 16px;display:flex;align-items:center;gap:10px;position:sticky;top:0;z-index:5}
+  header .logo{width:30px;height:30px;border-radius:8px;background:#fff;color:var(--navy);display:grid;place-items:center;font-weight:800}
+  header b{font-size:17px}
+  header .tag{margin-left:auto;font-size:11px;border:1px solid rgba(255,255,255,.4);border-radius:99px;padding:3px 9px}
+  main{flex:1;padding:16px 16px 90px}
+  .screen{display:none}.screen.active{display:block}
+  h2{font-size:20px;margin:4px 0 6px} h3{font-size:15px;margin:0 0 8px}
+  p.sub{color:var(--sub);font-size:14px;margin:0 0 16px;line-height:1.5}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px;margin-bottom:12px}
+  .btn{display:block;width:100%;border:0;border-radius:12px;padding:15px;font-size:15px;font-weight:700;cursor:pointer;background:var(--navy);color:#fff}
+  .btn:disabled{background:#aab3c3;cursor:not-allowed}
+  .btn.ghost{background:#fff;color:var(--navy);border:1px solid var(--line)}
+  .btn.ok{background:var(--ok)}
+  .hero{background:linear-gradient(140deg,var(--navy),var(--navy-2));color:#fff;border:0}
+  .hero h2{font-size:22px;line-height:1.35}
+  .hero p{color:#cfd7e6;font-size:14px;line-height:1.55}
+  .steps{list-style:none;padding:0;margin:0}
+  .steps li{display:flex;gap:12px;padding:10px 0;border-top:1px solid var(--line);font-size:14px;line-height:1.45}
+  .steps li:first-child{border-top:0}
+  .steps .n{flex:none;width:24px;height:24px;border-radius:50%;background:var(--bg);color:var(--navy);font-weight:700;display:grid;place-items:center;font-size:12px}
+  .drop{border:2px dashed #b9c2d3;border-radius:14px;padding:22px 16px;text-align:center;background:#fafbfd;cursor:pointer;margin-bottom:12px;transition:.15s}
+  .drop:hover{border-color:var(--navy-2)}
+  .drop .ic{font-size:26px} .drop b{display:block;margin:6px 0 2px} .drop small{color:var(--sub)}
+  .drop.done{border-style:solid;border-color:var(--ok);background:var(--ok-bg)}
+  .drop.done small{color:var(--ok);font-weight:600}
+  .spin{width:48px;height:48px;border:4px solid var(--line);border-top-color:var(--navy);border-radius:50%;animation:r 0.8s linear infinite;margin:60px auto 20px}
+  @keyframes r{to{transform:rotate(360deg)}}
+  .center{text-align:center}
+  .summary{display:flex;align-items:center;gap:14px}
+  .summary .big{font-size:34px;font-weight:800;color:var(--warn)}
+  .summary .big span{font-size:16px;color:var(--sub);font-weight:600}
+  .bar{height:8px;border-radius:99px;background:var(--ok-bg);overflow:hidden;margin-top:12px;display:flex}
+  .bar i{background:var(--warn)}
+  .slide{display:flex;align-items:center;gap:12px;cursor:pointer}
+  .slide .no{flex:none;width:38px;height:28px;border-radius:6px;background:var(--bg);font-size:12px;font-weight:700;color:var(--navy);display:grid;place-items:center}
+  .slide .txt{flex:1;min-width:0}
+  .slide .txt b{display:block;font-size:14px}
+  .slide .txt small{display:block;color:var(--sub);font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .badge{flex:none;font-size:12px;font-weight:700;padding:4px 9px;border-radius:99px}
+  .badge.ok{background:var(--ok-bg);color:var(--ok)} .badge.warn{background:var(--warn-bg);color:var(--warn)}
+  .back{background:none;border:0;color:var(--navy);font-size:14px;padding:0;margin-bottom:10px;cursor:pointer}
+  .label{font-size:12px;font-weight:700;color:var(--sub);letter-spacing:.02em;margin-bottom:6px}
+  .quote{border-left:4px solid var(--warn);background:var(--warn-bg);padding:12px;border-radius:0 10px 10px 0;font-size:15px;line-height:1.5}
+  .quote mark{background:none;color:var(--warn);font-weight:800;text-decoration:underline}
+  .qbox{background:var(--bg);border-radius:10px;padding:12px;font-size:14px;line-height:1.5}
+  .qbox .cond{display:inline-block;font-size:11px;background:var(--navy);color:#fff;border-radius:4px;padding:1px 6px;margin-bottom:4px}
+  .vs{display:grid;grid-template-columns:1fr auto 1fr;gap:8px;align-items:stretch}
+  .vs > div{border-radius:12px;padding:12px;text-align:center}
+  .vs .claim{background:var(--warn-bg);color:var(--warn)} .vs .real{background:var(--ok-bg);color:var(--ok)}
+  .vs .num{font-size:26px;font-weight:800} .vs small{display:block;font-size:12px;color:var(--sub);margin-top:4px;line-height:1.35}
+  .vs .arrow{display:grid;place-items:center;color:var(--sub);font-size:18px;padding:0}
+  .funnel{margin-top:12px;font-size:13px}
+  .funnel .row{display:flex;align-items:center;gap:8px;margin:6px 0}
+  .funnel .row span{width:92px;color:var(--sub)}
+  .funnel .row i{height:14px;border-radius:4px;background:var(--navy-2)}
+  .funnel .row em{font-style:normal;font-weight:700}
+  .fix{border-left:4px solid var(--ok);background:var(--ok-bg);padding:12px;border-radius:0 10px 10px 0;font-size:15px;line-height:1.5}
+  .okbox{text-align:center;padding:28px 16px}
+  .okbox .ck{width:56px;height:56px;border-radius:50%;background:var(--ok-bg);color:var(--ok);font-size:28px;display:grid;place-items:center;margin:0 auto 10px}
+  .toast{position:fixed;left:50%;bottom:90px;transform:translateX(-50%);background:var(--ink);color:#fff;padding:10px 16px;border-radius:10px;font-size:14px;opacity:0;transition:.25s;pointer-events:none}
+  .toast.show{opacity:1}
+  .notice{font-size:11.5px;color:var(--sub);text-align:center;line-height:1.5;margin-top:18px}
+  nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:480px;background:#fff;border-top:1px solid var(--line);display:flex}
+  nav button{flex:1;border:0;background:none;padding:10px 0 12px;font-size:12px;color:var(--sub);cursor:pointer}
+  nav button .i{display:block;font-size:18px;margin-bottom:2px}
+  nav button.on{color:var(--navy);font-weight:700}
+  button:focus-visible,.drop:focus-visible,.slide:focus-visible{outline:3px solid #6b8cff;outline-offset:2px}
+</style>
+</head>
+<body>
+<div class="app">
+  <header><div class="logo">📌</div><b>근거핀</b><span class="tag">제출 전 검증</span></header>
+  <main>
+    <!-- 1. 홈 -->
+    <section class="screen active" id="home">
+      <div class="card hero">
+        <h2>발표 속 숫자,<br>원본 데이터와 맞나요?</h2>
+        <p>슬라이드의 주장마다 원본 설문을 핀으로 연결해, 분모와 해석이 맞는지 제출 전에 확인합니다.</p>
+      </div>
+      <div class="card">
+        <h3>이렇게 검증해요</h3>
+        <ul class="steps">
+          <li><span class="n">1</span>설문 원자료(CSV)와 발표자료를 올립니다.</li>
+          <li><span class="n">2</span>수치가 들어간 문장을 찾아 설문 문항과 연결합니다.</li>
+          <li><span class="n">3</span>분모·응답 대상·비율이 원본과 다르면 수정 문장을 제안합니다.</li>
+        </ul>
+      </div>
+      <button class="btn" onclick="go('upload')">설문·발표자료 업로드</button>
+    </section>
+
+    <!-- 2. 업로드 -->
+    <section class="screen" id="upload">
+      <h2>자료 업로드</h2>
+      <p class="sub">두 파일을 모두 올리면 분석을 시작할 수 있어요.</p>
+      <div class="drop" id="dropCsv" tabindex="0" role="button" onclick="up(this,'survey_responses.csv · 50행')" onkeydown="if(event.key==='Enter')this.click()">
+        <div class="ic">📊</div><b>설문 원자료 (CSV)</b><small>여기로 끌어다 놓거나 눌러서 선택</small>
+      </div>
+      <div class="drop" id="dropDeck" tabindex="0" role="button" onclick="up(this,'공모전_발표_최종.pdf · 6슬라이드')" onkeydown="if(event.key==='Enter')this.click()">
+        <div class="ic">🖥️</div><b>발표자료 (PDF/슬라이드)</b><small>여기로 끌어다 놓거나 눌러서 선택</small>
+      </div>
+      <button class="btn" id="analyzeBtn" disabled onclick="analyze()">분석 시작</button>
+    </section>
+
+    <!-- 3. 로딩 -->
+    <section class="screen center" id="loading">
+      <div class="spin" aria-hidden="true"></div>
+      <h3>원본 데이터와 대조하는 중…</h3>
+      <p class="sub" id="loadMsg">슬라이드에서 수치 문장을 찾고 있어요</p>
+    </section>
+
+    <!-- 4. 결과 -->
+    <section class="screen" id="results">
+      <h2>검증 결과</h2>
+      <p class="sub">공모전_발표_최종.pdf · survey_responses.csv (응답 50명)</p>
+      <div class="card" id="summary"></div>
+      <div id="slideList"></div>
+    </section>
+
+    <!-- 5/6. 상세 -->
+    <section class="screen" id="detail"></section>
+
+    <p class="notice">이 프로토타입은 목업이며 실제 AI 분석 대신 예시 데이터를 보여줍니다.</p>
+  </main>
+  <nav>
+    <button data-tab="home" class="on" onclick="go('home')"><span class="i">🏠</span>홈</button>
+    <button data-tab="upload" onclick="go('upload')"><span class="i">⬆️</span>업로드</button>
+    <button data-tab="results" onclick="go('results')"><span class="i">📋</span>결과</button>
+  </nav>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+// 더미 데이터: 전체 50명 중 공모전 참가 경험자 20명에게만 후속 문항을 물음
+const slides = [
+  {no:1, title:'표지', text:'대학생 팀 프로젝트, 무엇이 어려운가', ok:true, src:'수치 없음'},
+  {no:2, title:'조사 개요', text:'대학생 50명을 대상으로 온라인 설문을 실시했다', ok:true, src:'전체 응답 수 50행'},
+  {no:3, title:'참가 경험', text:'응답자의 40%가 공모전 참가 경험이 있다', ok:true, src:'Q1. 공모전 참가 경험 — 예 20 / 50 (40%)'},
+  {no:4, title:'팀원 모집', ok:false,
+    text:'응답자의 60%가 팀원 모집에 어려움을 겪었다', hl:'응답자의 60%',
+    q:'Q2. 팀원 모집이 어려웠나요?', cond:'Q1 = 예 인 응답자에게만 표시',
+    claim:{num:'60%', note:'"응답자" → 전체 50명 기준처럼 읽힘'},
+    real:{num:'12/20', note:'공모전 참가 경험자 20명 중 12명'},
+    funnel:[['전체 응답자',50],['참가 경험자',20],['"그렇다"',12]],
+    reason:'비율(60%) 자체는 맞지만, 분모가 전체 응답자(50명)가 아니라 참가 경험자(20명)입니다. 전체 기준으로는 12/50 = 24%입니다.',
+    fix:'공모전 참가 경험자 20명 중 12명(60%)이 팀원 모집에 어려움을 겪었다'},
+  {no:5, title:'수상 경험', ok:false,
+    text:'참가 경험자의 절반 이상(55%)이 수상 경험이 있다', hl:'절반 이상(55%)',
+    q:'Q3. 공모전에서 수상한 적이 있나요?', cond:'Q1 = 예 인 응답자에게만 표시',
+    claim:{num:'55%', note:'"절반 이상"으로 해석'},
+    real:{num:'9/20', note:'참가 경험자 20명 중 9명 = 45%'},
+    funnel:[['전체 응답자',50],['참가 경험자',20],['"있다"',9]],
+    reason:'원본 응답은 20명 중 9명(45%)으로 절반에 못 미칩니다. 수치와 "절반 이상"이라는 해석이 모두 원본과 다릅니다.',
+    fix:'공모전 참가 경험자 20명 중 9명(45%)이 수상 경험이 있다'},
+  {no:6, title:'결론', text:'팀 매칭 지원이 필요하다는 응답이 다수였다', ok:true, src:'Q4. 매칭 지원 필요 — 예 34 / 50 (68%)'},
+];
+const $ = id => document.getElementById(id);
+
+// 해시 라우팅: #/ #/upload #/results #/detail/4 (GitHub Pages에서 새로고침·링크 공유 가능)
+function go(route){ location.hash = '#/' + (route==='home' ? '' : route); }
+function route(){
+  const [name='home', arg] = location.hash.replace(/^#\/?/,'').split('/').map(x=>x||undefined);
+  if (name==='detail' && slides.some(s=>s.no==arg)) return detail(+arg);
+  if (name==='results') renderResults();
+  show(['upload','results'].includes(name) ? name : 'home');
+}
+window.addEventListener('hashchange', route);
+function show(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.toggle('active', s.id===id));
+  const tab = id==='detail'||id==='loading' ? (id==='detail'?'results':'upload') : id;
+  document.querySelectorAll('nav button').forEach(b=>b.classList.toggle('on', b.dataset.tab===tab));
+  window.scrollTo(0,0);
+}
+function up(el, name){
+  el.classList.add('done');
+  el.querySelector('small').textContent = '✓ 업로드됨 · ' + name;
+  $('analyzeBtn').disabled = !($('dropCsv').classList.contains('done') && $('dropDeck').classList.contains('done'));
+}
+function analyze(){
+  show('loading');
+  setTimeout(()=>$('loadMsg').textContent='설문 문항과 응답 대상을 연결하고 있어요', 700);
+  setTimeout(()=>{ go('results'); $('loadMsg').textContent='슬라이드에서 수치 문장을 찾고 있어요'; }, 1600);
+}
+function renderResults(){
+  const bad = slides.filter(s=>!s.ok).length, n = slides.length;
+  $('summary').innerHTML = `
+    <div class="summary"><div class="big">${bad}<span> / ${n}</span></div>
+    <div><b>${n}개 슬라이드 중 ${bad}개 수정 필요</b><br><small style="color:var(--sub)">분모·해석이 원본 설문과 다른 문장을 찾았어요</small></div></div>
+    <div class="bar"><i style="width:${bad/n*100}%"></i></div>`;
+  $('slideList').innerHTML = slides.map(s=>`
+    <div class="card slide" tabindex="0" role="button" onclick="go('detail/${s.no}')" onkeydown="if(event.key==='Enter')this.click()">
+      <div class="no">S${s.no}</div>
+      <div class="txt"><b>${s.title}</b><small>${s.text}</small></div>
+      <span class="badge ${s.ok?'ok':'warn'}">${s.ok?'정상':'확인 필요'}</span>
+    </div>`).join('');
+}
+function detail(no){
+  const s = slides.find(x=>x.no===no), d = $('detail');
+  const back = `<button class="back" onclick="go('results')">← 결과 목록</button>`;
+  if (s.ok){
+    d.innerHTML = back + `<div class="card okbox"><div class="ck">✓</div><h3>원본과 일치함 ✓</h3>
+      <p class="sub" style="margin:0">S${s.no} · ${s.title}</p></div>
+      <div class="card"><div class="label">문장</div><div class="qbox">${s.text}</div>
+      <div class="label" style="margin-top:12px">연결된 근거</div><div class="qbox">${s.src}</div></div>`;
+  } else {
+    const max = s.funnel[0][1];
+    d.innerHTML = back + `
+      <div class="card"><div class="label">S${s.no} · 문제 문장</div>
+        <div class="quote">${s.text.replace(s.hl, '<mark>'+s.hl+'</mark>')}</div></div>
+      <div class="card"><div class="label">📌 연결된 원본 설문 문항</div>
+        <div class="qbox"><span class="cond">${s.cond}</span><br>${s.q}</div></div>
+      <div class="card"><div class="label">발표 수치 vs 실제 응답</div>
+        <div class="vs">
+          <div class="claim"><div class="num">${s.claim.num}</div><small>${s.claim.note}</small></div>
+          <div class="arrow">→</div>
+          <div class="real"><div class="num">${s.real.num}</div><small>${s.real.note}</small></div>
+        </div>
+        <div class="funnel">${s.funnel.map(([k,v])=>`<div class="row"><span>${k}</span><i style="width:${v/max*55}%"></i><em>${v}명</em></div>`).join('')}</div>
+        <p class="sub" style="margin:12px 0 0;font-size:13px">${s.reason}</p></div>
+      <div class="card"><div class="label">✏️ 제안 수정 문장</div><div class="fix">${s.fix}</div></div>
+      <button class="btn ok" id="applyBtn" onclick="apply(${s.no})">수정 반영</button>`;
+  }
+  show('detail');
+}
+function apply(no){
+  const s = slides.find(x=>x.no===no);
+  Object.assign(s, {ok:true, text:s.fix, src:s.q+' — '+s.real.note});
+  renderResults();
+  toast('S'+no+' 문장을 수정했어요');
+  setTimeout(()=>go('results'), 600);
+}
+function toast(msg){ const t=$('toast'); t.textContent=msg; t.classList.add('show'); setTimeout(()=>t.classList.remove('show'),1600); }
+route();
+</script>
+</body>
+</html>
