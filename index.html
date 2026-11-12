@@ -2,175 +2,338 @@
 <html lang="ko">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0e1a38">
 <title>근거핀 · 제출 전 검증</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
 <style>
   :root{
-    --navy:#1b2a4a; --navy-2:#2c3e66; --ink:#1f2633; --sub:#5b6577; --line:#e3e7ee;
-    --bg:#f3f5f9; --card:#fff; --ok:#1f8a5b; --ok-bg:#e6f4ed; --warn:#e8590c; --warn-bg:#fff0e6;
+    --navy-9:#0e1a38; --navy-8:#16264d; --navy-7:#22376a; --navy-5:#4a64a8; --navy-1:#eef2fb;
+    --ink:#141b2d; --ink-2:#4b556a; --ink-3:#8a93a6; --line:#e7eaf1; --bg:#f4f6fa; --card:#fff;
+    --warn:#ef5b25; --warn-2:#fff1ea; --warn-3:#ffd9c7;
+    --ok:#139a6b; --ok-2:#e7f6ef; --ok-3:#bfe8d6;
+    --r:18px; --shadow:0 1px 2px rgba(14,26,56,.04),0 6px 20px rgba(14,26,56,.06);
   }
-  *{box-sizing:border-box}
-  body{margin:0;background:#dfe3ea;font-family:-apple-system,"Pretendard","Apple SD Gothic Neo","Malgun Gothic",sans-serif;color:var(--ink)}
-  .app{max-width:480px;min-height:100vh;margin:0 auto;background:var(--bg);display:flex;flex-direction:column;position:relative}
-  header{background:var(--navy);color:#fff;padding:14px 16px;display:flex;align-items:center;gap:10px;position:sticky;top:0;z-index:5}
-  header .logo{width:30px;height:30px;border-radius:8px;background:#fff;color:var(--navy);display:grid;place-items:center;font-weight:800}
-  header b{font-size:17px}
-  header .tag{margin-left:auto;font-size:11px;border:1px solid rgba(255,255,255,.4);border-radius:99px;padding:3px 9px}
-  main{flex:1;padding:16px 16px 90px}
-  .screen{display:none}.screen.active{display:block}
-  h2{font-size:20px;margin:4px 0 6px} h3{font-size:15px;margin:0 0 8px}
-  p.sub{color:var(--sub);font-size:14px;margin:0 0 16px;line-height:1.5}
-  .card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px;margin-bottom:12px}
-  .btn{display:block;width:100%;border:0;border-radius:12px;padding:15px;font-size:15px;font-weight:700;cursor:pointer;background:var(--navy);color:#fff}
-  .btn:disabled{background:#aab3c3;cursor:not-allowed}
-  .btn.ghost{background:#fff;color:var(--navy);border:1px solid var(--line)}
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html{background:#e4e8f0}
+  body{margin:0;font-family:"Pretendard Variable",Pretendard,-apple-system,"Apple SD Gothic Neo","Malgun Gothic",sans-serif;color:var(--ink);letter-spacing:-.01em;-webkit-font-smoothing:antialiased}
+  .num,.tab{font-variant-numeric:tabular-nums;letter-spacing:-.03em}
+  svg.i{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;flex:none}
+  .app{max-width:480px;min-height:100vh;margin:0 auto;background:var(--bg);position:relative;box-shadow:0 0 40px rgba(14,26,56,.08)}
+
+  /* 헤더 */
+  header{position:sticky;top:0;z-index:10;display:flex;align-items:center;gap:10px;padding:14px 20px;background:rgba(244,246,250,.85);backdrop-filter:saturate(1.6) blur(12px);-webkit-backdrop-filter:saturate(1.6) blur(12px)}
+  .mark{width:32px;height:32px;border-radius:10px;background:var(--navy-9);color:#fff;display:grid;place-items:center}
+  .mark svg{width:18px;height:18px}
+  .brand{font-weight:800;font-size:18px;letter-spacing:-.03em}
+  .verify{margin-left:auto;display:flex;align-items:center;gap:6px;font-size:12px;font-weight:600;color:var(--navy-7);background:#fff;border:1px solid var(--line);padding:6px 10px;border-radius:99px}
+  .verify i{width:6px;height:6px;border-radius:50%;background:var(--ok);box-shadow:0 0 0 3px var(--ok-2)}
+
+  main{padding:4px 20px 110px}
+  .screen{display:none}
+  .screen.active{display:block;animation:in .35s cubic-bezier(.2,.7,.3,1)}
+  @keyframes in{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+
+  .eyebrow{font-size:12px;font-weight:700;color:var(--navy-5);letter-spacing:.04em;text-transform:uppercase;margin:12px 0 6px}
+  h1{font-size:26px;line-height:1.3;letter-spacing:-.04em;margin:0 0 8px;font-weight:800}
+  h2{font-size:16px;margin:0;font-weight:700;letter-spacing:-.02em}
+  .lead{color:var(--ink-2);font-size:14.5px;line-height:1.6;margin:0 0 20px}
+  .card{background:var(--card);border-radius:var(--r);padding:18px;margin-bottom:12px;box-shadow:var(--shadow)}
+  .label{display:flex;align-items:center;gap:6px;font-size:12.5px;font-weight:700;color:var(--ink-3);margin-bottom:10px}
+  .label svg{width:15px;height:15px}
+
+  .btn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;border:0;border-radius:14px;padding:16px;font:inherit;font-size:15.5px;font-weight:700;cursor:pointer;background:var(--navy-9);color:#fff;transition:transform .12s,background .2s,opacity .2s}
+  .btn:active{transform:scale(.98)}
+  .btn:disabled{background:#c6ccd8;cursor:not-allowed}
   .btn.ok{background:var(--ok)}
-  .hero{background:linear-gradient(140deg,var(--navy),var(--navy-2));color:#fff;border:0}
-  .hero h2{font-size:22px;line-height:1.35}
-  .hero p{color:#cfd7e6;font-size:14px;line-height:1.55}
-  .steps{list-style:none;padding:0;margin:0}
-  .steps li{display:flex;gap:12px;padding:10px 0;border-top:1px solid var(--line);font-size:14px;line-height:1.45}
-  .steps li:first-child{border-top:0}
-  .steps .n{flex:none;width:24px;height:24px;border-radius:50%;background:var(--bg);color:var(--navy);font-weight:700;display:grid;place-items:center;font-size:12px}
-  .drop{border:2px dashed #b9c2d3;border-radius:14px;padding:22px 16px;text-align:center;background:#fafbfd;cursor:pointer;margin-bottom:12px;transition:.15s}
-  .drop:hover{border-color:var(--navy-2)}
-  .drop .ic{font-size:26px} .drop b{display:block;margin:6px 0 2px} .drop small{color:var(--sub)}
-  .drop.done{border-style:solid;border-color:var(--ok);background:var(--ok-bg)}
+  .btn svg{width:18px;height:18px}
+
+  /* 홈 */
+  .hero{position:relative;overflow:hidden;border-radius:24px;padding:24px 20px 20px;color:#fff;margin:8px 0 14px;
+    background:radial-gradient(120% 80% at 100% 0%,#2d4a8f 0%,transparent 60%),linear-gradient(160deg,var(--navy-8),var(--navy-9))}
+  .hero::before{content:"";position:absolute;inset:0;opacity:.18;background-image:linear-gradient(rgba(255,255,255,.25) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.25) 1px,transparent 1px);background-size:22px 22px;mask-image:linear-gradient(180deg,#000,transparent 70%);-webkit-mask-image:linear-gradient(180deg,#000,transparent 70%)}
+  .hero > *{position:relative}
+  .hero .pill{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:600;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);padding:5px 10px;border-radius:99px;color:#d6def0}
+  .hero h1{color:#fff;margin:14px 0 8px}
+  .hero p{color:#b8c3dc;font-size:14px;line-height:1.6;margin:0 0 18px}
+  .demo{background:#fff;color:var(--ink);border-radius:16px;padding:14px;box-shadow:0 12px 30px rgba(0,0,0,.25)}
+  .demo .row{display:flex;gap:10px;align-items:flex-start;font-size:13.5px;line-height:1.5}
+  .demo .row + .row{margin-top:10px;padding-top:10px;border-top:1px dashed var(--line)}
+  .demo .tag{flex:none;font-size:11px;font-weight:700;padding:3px 7px;border-radius:6px}
+  .demo s{color:var(--ink-3)} .demo b{color:var(--ok)}
+  .tag.w{background:var(--warn-2);color:var(--warn)} .tag.g{background:var(--ok-2);color:var(--ok)}
+  .feat{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:20px}
+  .feat div{background:#fff;border-radius:14px;padding:14px 10px;text-align:center;box-shadow:var(--shadow);font-size:12.5px;font-weight:600;color:var(--ink-2)}
+  .feat svg{display:block;margin:0 auto 8px;width:22px;height:22px;color:var(--navy-7)}
+  .steps{counter-reset:s;list-style:none;margin:0;padding:0}
+  .steps li{counter-increment:s;display:flex;gap:12px;padding:12px 0;font-size:14px;line-height:1.5;color:var(--ink-2)}
+  .steps li + li{border-top:1px solid var(--line)}
+  .steps li::before{content:counter(s);flex:none;width:24px;height:24px;border-radius:8px;background:var(--navy-1);color:var(--navy-7);font-weight:800;font-size:12px;display:grid;place-items:center}
+  .steps b{color:var(--ink)}
+
+  /* 업로드 */
+  .drop{display:flex;align-items:center;gap:14px;border:1.5px dashed #c9d0de;border-radius:var(--r);padding:18px;background:#fff;cursor:pointer;margin-bottom:12px;transition:border-color .2s,background .2s}
+  .drop:hover{border-color:var(--navy-5);background:#fbfcff}
+  .drop .ico{flex:none;width:48px;height:48px;border-radius:14px;background:var(--navy-1);color:var(--navy-7);display:grid;place-items:center}
+  .drop .ico svg{width:24px;height:24px}
+  .drop .t{flex:1;min-width:0}
+  .drop b{display:block;font-size:15px}
+  .drop small{display:block;color:var(--ink-3);font-size:12.5px;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .drop .go{color:var(--ink-3)}
+  .drop .prog{height:4px;border-radius:99px;background:var(--line);margin-top:8px;overflow:hidden;display:none}
+  .drop .prog i{display:block;height:100%;width:0;background:var(--ok);transition:width .5s ease}
+  .drop.busy .prog{display:block}
+  .drop.done{border-style:solid;border-color:var(--ok-3);background:#fbfefc}
+  .drop.done .ico{background:var(--ok-2);color:var(--ok)}
   .drop.done small{color:var(--ok);font-weight:600}
-  .spin{width:48px;height:48px;border:4px solid var(--line);border-top-color:var(--navy);border-radius:50%;animation:r 0.8s linear infinite;margin:60px auto 20px}
-  @keyframes r{to{transform:rotate(360deg)}}
-  .center{text-align:center}
-  .summary{display:flex;align-items:center;gap:14px}
-  .summary .big{font-size:34px;font-weight:800;color:var(--warn)}
-  .summary .big span{font-size:16px;color:var(--sub);font-weight:600}
-  .bar{height:8px;border-radius:99px;background:var(--ok-bg);overflow:hidden;margin-top:12px;display:flex}
-  .bar i{background:var(--warn)}
-  .slide{display:flex;align-items:center;gap:12px;cursor:pointer}
-  .slide .no{flex:none;width:38px;height:28px;border-radius:6px;background:var(--bg);font-size:12px;font-weight:700;color:var(--navy);display:grid;place-items:center}
-  .slide .txt{flex:1;min-width:0}
-  .slide .txt b{display:block;font-size:14px}
-  .slide .txt small{display:block;color:var(--sub);font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-  .badge{flex:none;font-size:12px;font-weight:700;padding:4px 9px;border-radius:99px}
-  .badge.ok{background:var(--ok-bg);color:var(--ok)} .badge.warn{background:var(--warn-bg);color:var(--warn)}
-  .back{background:none;border:0;color:var(--navy);font-size:14px;padding:0;margin-bottom:10px;cursor:pointer}
-  .label{font-size:12px;font-weight:700;color:var(--sub);letter-spacing:.02em;margin-bottom:6px}
-  .quote{border-left:4px solid var(--warn);background:var(--warn-bg);padding:12px;border-radius:0 10px 10px 0;font-size:15px;line-height:1.5}
-  .quote mark{background:none;color:var(--warn);font-weight:800;text-decoration:underline}
-  .qbox{background:var(--bg);border-radius:10px;padding:12px;font-size:14px;line-height:1.5}
-  .qbox .cond{display:inline-block;font-size:11px;background:var(--navy);color:#fff;border-radius:4px;padding:1px 6px;margin-bottom:4px}
-  .vs{display:grid;grid-template-columns:1fr auto 1fr;gap:8px;align-items:stretch}
-  .vs > div{border-radius:12px;padding:12px;text-align:center}
-  .vs .claim{background:var(--warn-bg);color:var(--warn)} .vs .real{background:var(--ok-bg);color:var(--ok)}
-  .vs .num{font-size:26px;font-weight:800} .vs small{display:block;font-size:12px;color:var(--sub);margin-top:4px;line-height:1.35}
-  .vs .arrow{display:grid;place-items:center;color:var(--sub);font-size:18px;padding:0}
-  .funnel{margin-top:12px;font-size:13px}
-  .funnel .row{display:flex;align-items:center;gap:8px;margin:6px 0}
-  .funnel .row span{width:92px;color:var(--sub)}
-  .funnel .row i{height:14px;border-radius:4px;background:var(--navy-2)}
-  .funnel .row em{font-style:normal;font-weight:700}
-  .fix{border-left:4px solid var(--ok);background:var(--ok-bg);padding:12px;border-radius:0 10px 10px 0;font-size:15px;line-height:1.5}
-  .okbox{text-align:center;padding:28px 16px}
-  .okbox .ck{width:56px;height:56px;border-radius:50%;background:var(--ok-bg);color:var(--ok);font-size:28px;display:grid;place-items:center;margin:0 auto 10px}
-  .toast{position:fixed;left:50%;bottom:90px;transform:translateX(-50%);background:var(--ink);color:#fff;padding:10px 16px;border-radius:10px;font-size:14px;opacity:0;transition:.25s;pointer-events:none}
-  .toast.show{opacity:1}
-  .notice{font-size:11.5px;color:var(--sub);text-align:center;line-height:1.5;margin-top:18px}
-  nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:480px;background:#fff;border-top:1px solid var(--line);display:flex}
-  nav button{flex:1;border:0;background:none;padding:10px 0 12px;font-size:12px;color:var(--sub);cursor:pointer}
-  nav button .i{display:block;font-size:18px;margin-bottom:2px}
-  nav button.on{color:var(--navy);font-weight:700}
-  button:focus-visible,.drop:focus-visible,.slide:focus-visible{outline:3px solid #6b8cff;outline-offset:2px}
+  .drop.done .go{color:var(--ok)}
+  .hint{display:flex;gap:8px;font-size:12.5px;color:var(--ink-2);background:var(--navy-1);border-radius:12px;padding:12px;margin:4px 0 16px;line-height:1.5}
+  .hint svg{width:16px;height:16px;color:var(--navy-5);margin-top:1px}
+
+  /* 로딩 */
+  .loader{padding:40px 0 0;text-align:center}
+  .ring{width:64px;height:64px;margin:0 auto 22px;border-radius:50%;background:conic-gradient(var(--navy-7),transparent 70%);animation:r 1s linear infinite;-webkit-mask:radial-gradient(farthest-side,transparent calc(100% - 6px),#000 0);mask:radial-gradient(farthest-side,transparent calc(100% - 6px),#000 0)}
+  @keyframes r{to{transform:rotate(1turn)}}
+  .checks{list-style:none;padding:0;margin:24px auto 0;max-width:300px;text-align:left}
+  .checks li{display:flex;align-items:center;gap:10px;padding:9px 0;font-size:14px;color:var(--ink-3);transition:color .3s}
+  .checks li span{width:20px;height:20px;border-radius:50%;border:2px solid var(--line);display:grid;place-items:center;transition:.3s}
+  .checks li.on{color:var(--ink)}
+  .checks li.on span{background:var(--ok);border-color:var(--ok)}
+  .checks li.on span::after{content:"";width:6px;height:10px;border:solid #fff;border-width:0 2px 2px 0;transform:rotate(45deg) translate(-1px,-1px)}
+
+  /* 결과 */
+  .sum{display:flex;align-items:center;gap:18px}
+  .donut{flex:none;width:92px;height:92px;position:relative}
+  .donut svg{width:100%;height:100%;transform:rotate(-90deg)}
+  .donut .c{position:absolute;inset:0;display:grid;place-items:center;text-align:center;line-height:1.1}
+  .donut .c b{font-size:24px;color:var(--warn)} .donut .c small{font-size:11px;color:var(--ink-3)}
+  .sum h2{font-size:17px;line-height:1.4}
+  .sum h2 em{font-style:normal;color:var(--warn)}
+  .legend{display:flex;gap:12px;margin-top:8px;font-size:12px;color:var(--ink-2)}
+  .legend i{display:inline-block;width:8px;height:8px;border-radius:3px;margin-right:5px;vertical-align:0}
+  .meta{display:flex;gap:8px;margin:0 0 16px;flex-wrap:wrap}
+  .meta span{display:inline-flex;align-items:center;gap:5px;font-size:12px;color:var(--ink-2);background:#fff;border:1px solid var(--line);border-radius:8px;padding:5px 8px}
+  .meta svg{width:14px;height:14px}
+  .sec{display:flex;justify-content:space-between;align-items:baseline;margin:22px 0 10px}
+  .sec small{color:var(--ink-3);font-size:12px}
+  .slide{display:flex;align-items:center;gap:12px;padding:14px;cursor:pointer;transition:transform .12s}
+  .slide:active{transform:scale(.99)}
+  .thumb{flex:none;width:52px;height:38px;border-radius:8px;background:linear-gradient(135deg,var(--navy-1),#fff);border:1px solid var(--line);position:relative;font-size:11px;font-weight:800;color:var(--navy-7);display:grid;place-items:center}
+  .thumb::after{content:"";position:absolute;left:8px;right:16px;bottom:7px;height:3px;border-radius:2px;background:#d3daea}
+  .slide.w .thumb{background:linear-gradient(135deg,var(--warn-2),#fff);border-color:var(--warn-3);color:var(--warn)}
+  .slide.w .thumb::after{background:var(--warn-3)}
+  .slide .t{flex:1;min-width:0}
+  .slide .t b{display:block;font-size:14.5px}
+  .slide .t small{display:block;color:var(--ink-2);font-size:12.5px;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .badge{flex:none;display:inline-flex;align-items:center;gap:4px;font-size:12px;font-weight:700;padding:5px 9px;border-radius:99px}
+  .badge.ok{background:var(--ok-2);color:var(--ok)} .badge.w{background:var(--warn-2);color:var(--warn)}
+  .badge svg{width:13px;height:13px;stroke-width:2.4}
+  .chev{color:#c3c9d6} .chev svg{width:16px;height:16px}
+
+  /* 상세 */
+  .back{display:inline-flex;align-items:center;gap:4px;background:none;border:0;font:inherit;font-size:14px;color:var(--ink-2);padding:6px 0;margin:4px 0 8px;cursor:pointer}
+  .back svg{width:18px;height:18px}
+  .dhead{display:flex;align-items:center;gap:8px;margin-bottom:14px}
+  .dhead .sn{font-size:12px;font-weight:800;color:var(--navy-7);background:var(--navy-1);border-radius:6px;padding:4px 7px}
+  .dhead h1{font-size:21px;margin:0;flex:1}
+  .quote{font-size:16.5px;line-height:1.6;font-weight:600;letter-spacing:-.02em}
+  .quote mark{background:linear-gradient(transparent 58%,var(--warn-3) 0);color:var(--warn);padding:0 1px}
+  .issue{display:flex;gap:8px;margin-top:12px;font-size:13px;line-height:1.55;color:var(--ink-2);background:var(--warn-2);border-radius:12px;padding:12px}
+  .issue svg{width:16px;height:16px;color:var(--warn);margin-top:2px}
+  .q{border:1px solid var(--line);border-radius:14px;padding:14px}
+  .q .cond{display:inline-flex;align-items:center;gap:5px;font-size:11.5px;font-weight:700;color:var(--navy-7);background:var(--navy-1);border-radius:6px;padding:3px 7px;margin-bottom:8px}
+  .q .cond svg{width:13px;height:13px}
+  .q p{margin:0;font-size:15px;font-weight:600}
+  .q .src{font-size:12px;color:var(--ink-3);margin-top:6px}
+  .vs{display:grid;grid-template-columns:1fr 28px 1fr;align-items:center}
+  .vs .box{border-radius:14px;padding:14px 10px;text-align:center}
+  .vs .claim{background:var(--warn-2)} .vs .real{background:var(--ok-2)}
+  .vs .k{font-size:11.5px;font-weight:700;color:var(--ink-3);margin-bottom:4px}
+  .vs .num{font-size:32px;font-weight:800;line-height:1.1}
+  .vs .claim .num{color:var(--warn)} .vs .real .num{color:var(--ok)}
+  .vs .num small{font-size:16px;font-weight:700;opacity:.6}
+  .vs .d{font-size:12px;color:var(--ink-2);margin-top:6px;line-height:1.4}
+  .vs .arr{color:var(--ink-3);display:grid;place-items:center}
+  .vs .arr svg{width:18px;height:18px}
+  .dots{display:grid;grid-template-columns:repeat(10,1fr);gap:5px;margin:16px 0 10px}
+  .dots i{aspect-ratio:1;border-radius:50%;background:#e6e9f0}
+  .dots i.s{background:var(--navy-1);box-shadow:inset 0 0 0 1.5px var(--navy-5)}
+  .dots i.y{background:var(--ok);box-shadow:none}
+  .dl{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:12px;color:var(--ink-2)}
+  .dl i{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:5px;vertical-align:-1px}
+  .dl b{font-variant-numeric:tabular-nums}
+  .fix{font-size:16px;line-height:1.6;font-weight:600;color:var(--ink);background:var(--ok-2);border-radius:14px;padding:14px}
+  .fix ins{text-decoration:none;background:linear-gradient(transparent 58%,var(--ok-3) 0);color:#0b7a53}
+  .before{font-size:13px;color:var(--ink-3);margin:0 0 8px;text-decoration:line-through}
+  .okhero{text-align:center;padding:28px 18px}
+  .okhero .ck{width:60px;height:60px;border-radius:50%;background:var(--ok-2);color:var(--ok);display:grid;place-items:center;margin:0 auto 12px}
+  .okhero .ck svg{width:30px;height:30px;stroke-width:2.4}
+  .okhero h1{font-size:21px;margin:0 0 4px}
+  .okhero p{margin:0;color:var(--ink-2);font-size:14px}
+  .kv{display:flex;justify-content:space-between;align-items:center;font-size:13.5px;padding:10px 0;border-top:1px solid var(--line)}
+  .kv span{color:var(--ink-3)} .kv b{font-weight:600;text-align:right}
+
+  .toast{position:fixed;left:50%;bottom:96px;transform:translate(-50%,10px);display:flex;align-items:center;gap:8px;background:var(--navy-9);color:#fff;padding:12px 16px;border-radius:12px;font-size:14px;font-weight:600;opacity:0;transition:.25s;pointer-events:none;box-shadow:0 10px 30px rgba(14,26,56,.3)}
+  .toast svg{width:18px;height:18px;color:#5fe0ae}
+  .toast.show{opacity:1;transform:translate(-50%,0)}
+  .notice{display:flex;gap:6px;justify-content:center;font-size:11.5px;color:var(--ink-3);text-align:center;line-height:1.5;margin:28px 0 0}
+
+  nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:480px;display:flex;padding:8px 12px calc(10px + env(safe-area-inset-bottom));background:rgba(255,255,255,.9);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-top:1px solid var(--line);z-index:10}
+  nav button{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;border:0;background:none;font:inherit;font-size:11.5px;font-weight:600;color:var(--ink-3);padding:6px 0;border-radius:12px;cursor:pointer}
+  nav button svg{width:22px;height:22px}
+  nav button.on{color:var(--navy-9)}
+  nav button.on svg{stroke-width:2.2}
+  :focus-visible{outline:3px solid #7d97e6;outline-offset:2px;border-radius:8px}
+  @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
 </head>
 <body>
+<!-- 아이콘 (Lucide 스타일 인라인 SVG) -->
+<svg width="0" height="0" style="position:absolute">
+  <symbol id="pin" viewBox="0 0 24 24"><path d="M12 17v5"/><path d="M9 10.8V6h6v4.8l2.6 2.6c.4.4.1 1.1-.4 1.1H6.8c-.5 0-.8-.7-.4-1.1z"/><path d="M8 3h8"/></symbol>
+  <symbol id="home" viewBox="0 0 24 24"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V20h14V9.5"/><path d="M10 20v-6h4v6"/></symbol>
+  <symbol id="upload" viewBox="0 0 24 24"><path d="M12 15V3"/><path d="m7 8 5-5 5 5"/><path d="M4 15v4a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-4"/></symbol>
+  <symbol id="list" viewBox="0 0 24 24"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 8h8M8 12h8M8 16h5"/></symbol>
+  <symbol id="table" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 10h18M3 15h18M9 4v16"/></symbol>
+  <symbol id="slides" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="12" rx="2"/><path d="M12 16v4M8 20h8"/></symbol>
+  <symbol id="check" viewBox="0 0 24 24"><path d="m5 12.5 4.5 4.5L19 7.5"/></symbol>
+  <symbol id="alert" viewBox="0 0 24 24"><path d="M12 8v5"/><path d="M12 16.5h.01"/><circle cx="12" cy="12" r="9"/></symbol>
+  <symbol id="chev" viewBox="0 0 24 24"><path d="m9 6 6 6-6 6"/></symbol>
+  <symbol id="back" viewBox="0 0 24 24"><path d="m15 6-6 6 6 6"/></symbol>
+  <symbol id="arrow" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></symbol>
+  <symbol id="link" viewBox="0 0 24 24"><path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1"/><path d="M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/></symbol>
+  <symbol id="divide" viewBox="0 0 24 24"><path d="M5 12h14"/><circle cx="12" cy="6.5" r="1.2"/><circle cx="12" cy="17.5" r="1.2"/></symbol>
+  <symbol id="users" viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20a6.5 6.5 0 0 1 13 0"/><path d="M16 4.5a3.5 3.5 0 0 1 0 7M18 14a6.5 6.5 0 0 1 3.5 6"/></symbol>
+  <symbol id="edit" viewBox="0 0 24 24"><path d="M4 20h4L19 9l-4-4L4 16z"/><path d="m13.5 6.5 4 4"/></symbol>
+  <symbol id="filter" viewBox="0 0 24 24"><path d="M4 5h16l-6 7.5V19l-4 1.5v-8z"/></symbol>
+  <symbol id="info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 7.5h.01"/></symbol>
+</svg>
+
 <div class="app">
-  <header><div class="logo">📌</div><b>근거핀</b><span class="tag">제출 전 검증</span></header>
+  <header>
+    <div class="mark"><svg class="i"><use href="#pin"/></svg></div>
+    <span class="brand">근거핀</span>
+    <span class="verify"><i></i>제출 전 검증</span>
+  </header>
+
   <main>
     <!-- 1. 홈 -->
     <section class="screen active" id="home">
-      <div class="card hero">
-        <h2>발표 속 숫자,<br>원본 데이터와 맞나요?</h2>
-        <p>슬라이드의 주장마다 원본 설문을 핀으로 연결해, 분모와 해석이 맞는지 제출 전에 확인합니다.</p>
+      <div class="hero">
+        <span class="pill"><svg class="i" style="width:14px;height:14px"><use href="#link"/></svg>주장 ↔ 원본 데이터 연결</span>
+        <h1>발표 속 숫자,<br>원본과 맞는지 확인했나요?</h1>
+        <p>슬라이드 문장마다 원본 설문을 핀으로 꽂아, 분모와 해석이 맞는지 제출 전에 짚어드려요.</p>
+        <div class="demo">
+          <div class="row"><span class="tag w">발표</span><span><s>응답자의 60%</s>가 팀원 모집에 어려움을 겪었다</span></div>
+          <div class="row"><span class="tag g">원본</span><span><b>참가 경험자 20명 중 12명(60%)</b>이 팀원 모집에 어려움을 겪었다</span></div>
+        </div>
+      </div>
+      <div class="feat">
+        <div><svg class="i"><use href="#divide"/></svg>분모 확인</div>
+        <div><svg class="i"><use href="#users"/></svg>응답 대상</div>
+        <div><svg class="i"><use href="#edit"/></svg>수정 제안</div>
       </div>
       <div class="card">
-        <h3>이렇게 검증해요</h3>
-        <ul class="steps">
-          <li><span class="n">1</span>설문 원자료(CSV)와 발표자료를 올립니다.</li>
-          <li><span class="n">2</span>수치가 들어간 문장을 찾아 설문 문항과 연결합니다.</li>
-          <li><span class="n">3</span>분모·응답 대상·비율이 원본과 다르면 수정 문장을 제안합니다.</li>
-        </ul>
+        <h2 style="margin-bottom:4px">이렇게 검증해요</h2>
+        <ol class="steps">
+          <li><span><b>설문 원자료(CSV)</b>와 <b>발표자료</b>를 올려요</span></li>
+          <li><span>숫자가 들어간 문장을 찾아 <b>설문 문항과 연결</b>해요</span></li>
+          <li><span>분모·응답 대상·비율이 다르면 <b>수정 문장을 제안</b>해요</span></li>
+        </ol>
       </div>
-      <button class="btn" onclick="go('upload')">설문·발표자료 업로드</button>
+      <button class="btn" onclick="go('upload')"><svg class="i"><use href="#upload"/></svg>설문·발표자료 업로드</button>
     </section>
 
     <!-- 2. 업로드 -->
     <section class="screen" id="upload">
-      <h2>자료 업로드</h2>
-      <p class="sub">두 파일을 모두 올리면 분석을 시작할 수 있어요.</p>
-      <div class="drop" id="dropCsv" tabindex="0" role="button" onclick="up(this,'survey_responses.csv · 50행')" onkeydown="if(event.key==='Enter')this.click()">
-        <div class="ic">📊</div><b>설문 원자료 (CSV)</b><small>여기로 끌어다 놓거나 눌러서 선택</small>
+      <div class="eyebrow">Step 1 / 2</div>
+      <h1>검증할 자료를 올려주세요</h1>
+      <p class="lead">설문 원자료와 발표자료를 모두 올리면 분석을 시작할 수 있어요.</p>
+      <div class="drop" id="dropCsv" tabindex="0" role="button" onclick="up(this,'survey_responses.csv','50행 · 4문항')" onkeydown="if(event.key==='Enter')this.click()">
+        <div class="ico"><svg class="i"><use href="#table"/></svg></div>
+        <div class="t"><b>설문 원자료</b><small>CSV · 끌어다 놓거나 눌러서 선택</small><div class="prog"><i></i></div></div>
+        <span class="go"><svg class="i"><use href="#upload"/></svg></span>
       </div>
-      <div class="drop" id="dropDeck" tabindex="0" role="button" onclick="up(this,'공모전_발표_최종.pdf · 6슬라이드')" onkeydown="if(event.key==='Enter')this.click()">
-        <div class="ic">🖥️</div><b>발표자료 (PDF/슬라이드)</b><small>여기로 끌어다 놓거나 눌러서 선택</small>
+      <div class="drop" id="dropDeck" tabindex="0" role="button" onclick="up(this,'공모전_발표_최종.pdf','6슬라이드')" onkeydown="if(event.key==='Enter')this.click()">
+        <div class="ico"><svg class="i"><use href="#slides"/></svg></div>
+        <div class="t"><b>발표자료</b><small>PDF · PPTX · 끌어다 놓거나 눌러서 선택</small><div class="prog"><i></i></div></div>
+        <span class="go"><svg class="i"><use href="#upload"/></svg></span>
       </div>
+      <div class="hint"><svg class="i"><use href="#info"/></svg><span>문항 조건(예: “Q1에 ‘예’라고 답한 사람만”)이 CSV에 있으면 응답 대상을 더 정확히 찾아요.</span></div>
       <button class="btn" id="analyzeBtn" disabled onclick="analyze()">분석 시작</button>
     </section>
 
     <!-- 3. 로딩 -->
-    <section class="screen center" id="loading">
-      <div class="spin" aria-hidden="true"></div>
-      <h3>원본 데이터와 대조하는 중…</h3>
-      <p class="sub" id="loadMsg">슬라이드에서 수치 문장을 찾고 있어요</p>
+    <section class="screen" id="loading">
+      <div class="loader">
+        <div class="ring" aria-hidden="true"></div>
+        <h1 style="font-size:21px">원본 데이터와 대조하는 중</h1>
+        <p class="lead" style="margin:0">잠시만 기다려 주세요</p>
+        <ul class="checks" id="checks">
+          <li><span></span>슬라이드에서 수치 문장 찾기</li>
+          <li><span></span>설문 문항과 응답 대상 연결</li>
+          <li><span></span>분모·비율 다시 계산</li>
+        </ul>
+      </div>
     </section>
 
     <!-- 4. 결과 -->
     <section class="screen" id="results">
-      <h2>검증 결과</h2>
-      <p class="sub">공모전_발표_최종.pdf · survey_responses.csv (응답 50명)</p>
+      <div class="eyebrow">Step 2 / 2 · 검증 결과</div>
+      <div class="meta">
+        <span><svg class="i"><use href="#slides"/></svg>공모전_발표_최종.pdf</span>
+        <span><svg class="i"><use href="#table"/></svg>응답 50명</span>
+      </div>
       <div class="card" id="summary"></div>
+      <div class="sec"><h2>슬라이드별 결과</h2><small>항목을 눌러 근거 보기</small></div>
       <div id="slideList"></div>
     </section>
 
     <!-- 5/6. 상세 -->
     <section class="screen" id="detail"></section>
 
-    <p class="notice">이 프로토타입은 목업이며 실제 AI 분석 대신 예시 데이터를 보여줍니다.</p>
+    <p class="notice"><span>이 프로토타입은 목업이며 실제 AI 분석 대신 예시 데이터를 보여줍니다.</span></p>
   </main>
+
   <nav>
-    <button data-tab="home" class="on" onclick="go('home')"><span class="i">🏠</span>홈</button>
-    <button data-tab="upload" onclick="go('upload')"><span class="i">⬆️</span>업로드</button>
-    <button data-tab="results" onclick="go('results')"><span class="i">📋</span>결과</button>
+    <button data-tab="home" class="on" onclick="go('home')"><svg class="i"><use href="#home"/></svg>홈</button>
+    <button data-tab="upload" onclick="go('upload')"><svg class="i"><use href="#upload"/></svg>업로드</button>
+    <button data-tab="results" onclick="go('results')"><svg class="i"><use href="#list"/></svg>결과</button>
   </nav>
 </div>
-<div class="toast" id="toast"></div>
+<div class="toast" id="toast"><svg class="i"><use href="#check"/></svg><span></span></div>
 
 <script>
 // 더미 데이터: 전체 50명 중 공모전 참가 경험자 20명에게만 후속 문항을 물음
 const slides = [
-  {no:1, title:'표지', text:'대학생 팀 프로젝트, 무엇이 어려운가', ok:true, src:'수치 없음'},
-  {no:2, title:'조사 개요', text:'대학생 50명을 대상으로 온라인 설문을 실시했다', ok:true, src:'전체 응답 수 50행'},
-  {no:3, title:'참가 경험', text:'응답자의 40%가 공모전 참가 경험이 있다', ok:true, src:'Q1. 공모전 참가 경험 — 예 20 / 50 (40%)'},
+  {no:1, title:'표지', text:'대학생 팀 프로젝트, 무엇이 어려운가', ok:true, src:'수치 없음', match:'검증할 수치 없음'},
+  {no:2, title:'조사 개요', text:'대학생 50명을 대상으로 온라인 설문을 실시했다', ok:true, src:'설문 원자료 전체 행 수', match:'50명 = 50행'},
+  {no:3, title:'참가 경험', text:'응답자의 40%가 공모전 참가 경험이 있다', ok:true, src:'Q1. 공모전에 참가한 경험이 있나요?', match:'예 20명 / 전체 50명 = 40%'},
   {no:4, title:'팀원 모집', ok:false,
     text:'응답자의 60%가 팀원 모집에 어려움을 겪었다', hl:'응답자의 60%',
-    q:'Q2. 팀원 모집이 어려웠나요?', cond:'Q1 = 예 인 응답자에게만 표시',
-    claim:{num:'60%', note:'"응답자" → 전체 50명 기준처럼 읽힘'},
-    real:{num:'12/20', note:'공모전 참가 경험자 20명 중 12명'},
-    funnel:[['전체 응답자',50],['참가 경험자',20],['"그렇다"',12]],
-    reason:'비율(60%) 자체는 맞지만, 분모가 전체 응답자(50명)가 아니라 참가 경험자(20명)입니다. 전체 기준으로는 12/50 = 24%입니다.',
-    fix:'공모전 참가 경험자 20명 중 12명(60%)이 팀원 모집에 어려움을 겪었다'},
+    q:'Q2. 팀원 모집이 어려웠나요?', cond:'Q1 = “예” 응답자에게만 표시',
+    claim:{num:'60', unit:'%', d:'“응답자” 전체 50명 기준처럼 읽힘'},
+    real:{num:'12', unit:'/20', d:'참가 경험자 20명 중 12명'},
+    dots:{all:50, sub:20, yes:12, subL:'참가 경험자', yesL:'“그렇다”'},
+    reason:'비율(60%)은 맞지만 분모가 전체 응답자(50명)가 아니라 참가 경험자(20명)예요. 전체 기준이라면 12/50 = 24%입니다.',
+    fixHtml:'<ins>공모전 참가 경험자 20명 중 12명(60%)</ins>이 팀원 모집에 어려움을 겪었다',
+    fix:'공모전 참가 경험자 20명 중 12명(60%)이 팀원 모집에 어려움을 겪었다', match:'12명 / 참가 경험자 20명 = 60%'},
   {no:5, title:'수상 경험', ok:false,
     text:'참가 경험자의 절반 이상(55%)이 수상 경험이 있다', hl:'절반 이상(55%)',
-    q:'Q3. 공모전에서 수상한 적이 있나요?', cond:'Q1 = 예 인 응답자에게만 표시',
-    claim:{num:'55%', note:'"절반 이상"으로 해석'},
-    real:{num:'9/20', note:'참가 경험자 20명 중 9명 = 45%'},
-    funnel:[['전체 응답자',50],['참가 경험자',20],['"있다"',9]],
-    reason:'원본 응답은 20명 중 9명(45%)으로 절반에 못 미칩니다. 수치와 "절반 이상"이라는 해석이 모두 원본과 다릅니다.',
-    fix:'공모전 참가 경험자 20명 중 9명(45%)이 수상 경험이 있다'},
-  {no:6, title:'결론', text:'팀 매칭 지원이 필요하다는 응답이 다수였다', ok:true, src:'Q4. 매칭 지원 필요 — 예 34 / 50 (68%)'},
+    q:'Q3. 공모전에서 수상한 적이 있나요?', cond:'Q1 = “예” 응답자에게만 표시',
+    claim:{num:'55', unit:'%', d:'“절반 이상”으로 해석'},
+    real:{num:'9', unit:'/20', d:'참가 경험자 20명 중 9명 = 45%'},
+    dots:{all:50, sub:20, yes:9, subL:'참가 경험자', yesL:'“있다”'},
+    reason:'원본은 20명 중 9명(45%)으로 절반에 못 미쳐요. 수치와 “절반 이상”이라는 해석이 모두 원본과 달라요.',
+    fixHtml:'공모전 참가 경험자 20명 중 <ins>9명(45%)</ins>이 수상 경험이 있다',
+    fix:'공모전 참가 경험자 20명 중 9명(45%)이 수상 경험이 있다', match:'9명 / 참가 경험자 20명 = 45%'},
+  {no:6, title:'결론', text:'팀 매칭 지원이 필요하다는 응답이 다수였다', ok:true, src:'Q4. 팀 매칭 지원이 필요하다고 생각하나요?', match:'예 34명 / 전체 50명 = 68%'},
 ];
 const $ = id => document.getElementById(id);
+const ic = (id, cls='i') => `<svg class="${cls}"><use href="#${id}"/></svg>`;
 
 // 해시 라우팅: #/ #/upload #/results #/detail/4 (GitHub Pages에서 새로고침·링크 공유 가능)
-function go(route){ location.hash = '#/' + (route==='home' ? '' : route); }
+function go(r){ location.hash = '#/' + (r==='home' ? '' : r); }
 function route(){
   const [name='home', arg] = location.hash.replace(/^#\/?/,'').split('/').map(x=>x||undefined);
   if (name==='detail' && slides.some(s=>s.no==arg)) return detail(+arg);
@@ -180,69 +343,89 @@ function route(){
 window.addEventListener('hashchange', route);
 function show(id){
   document.querySelectorAll('.screen').forEach(s=>s.classList.toggle('active', s.id===id));
-  const tab = id==='detail'||id==='loading' ? (id==='detail'?'results':'upload') : id;
+  const tab = id==='detail' ? 'results' : id==='loading' ? 'upload' : id;
   document.querySelectorAll('nav button').forEach(b=>b.classList.toggle('on', b.dataset.tab===tab));
   window.scrollTo(0,0);
 }
-function up(el, name){
-  el.classList.add('done');
-  el.querySelector('small').textContent = '✓ 업로드됨 · ' + name;
-  $('analyzeBtn').disabled = !($('dropCsv').classList.contains('done') && $('dropDeck').classList.contains('done'));
+function up(el, name, meta){
+  if (el.classList.contains('done')||el.classList.contains('busy')) return;
+  el.classList.add('busy');
+  el.querySelector('small').textContent = name + ' · 업로드 중…';
+  requestAnimationFrame(()=>el.querySelector('.prog i').style.width='100%');
+  setTimeout(()=>{
+    el.classList.replace('busy','done');
+    el.querySelector('small').textContent = '✓ ' + name + ' · ' + meta;
+    el.querySelector('.go').innerHTML = ic('check');
+    $('analyzeBtn').disabled = !($('dropCsv').classList.contains('done') && $('dropDeck').classList.contains('done'));
+  }, 550);
 }
 function analyze(){
   show('loading');
-  setTimeout(()=>$('loadMsg').textContent='설문 문항과 응답 대상을 연결하고 있어요', 700);
-  setTimeout(()=>{ go('results'); $('loadMsg').textContent='슬라이드에서 수치 문장을 찾고 있어요'; }, 1600);
+  const li = [...$('checks').children];
+  li.forEach(x=>x.classList.remove('on'));
+  li.forEach((x,i)=>setTimeout(()=>x.classList.add('on'), 450*(i+1)));
+  setTimeout(()=>go('results'), 1800);
 }
 function renderResults(){
-  const bad = slides.filter(s=>!s.ok).length, n = slides.length;
+  const bad = slides.filter(s=>!s.ok).length, n = slides.length, C = 2*Math.PI*40;
   $('summary').innerHTML = `
-    <div class="summary"><div class="big">${bad}<span> / ${n}</span></div>
-    <div><b>${n}개 슬라이드 중 ${bad}개 수정 필요</b><br><small style="color:var(--sub)">분모·해석이 원본 설문과 다른 문장을 찾았어요</small></div></div>
-    <div class="bar"><i style="width:${bad/n*100}%"></i></div>`;
+    <div class="sum">
+      <div class="donut">
+        <svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="40" fill="none" stroke="var(--ok-3)" stroke-width="12"/>
+        <circle cx="50" cy="50" r="40" fill="none" stroke="var(--warn)" stroke-width="12" stroke-linecap="round" stroke-dasharray="${bad/n*C} ${C}"/></svg>
+        <div class="c"><div><b class="num">${bad}</b><br><small>/ ${n}</small></div></div>
+      </div>
+      <div><h2>${n}개 슬라이드 중<br><em>${bad}개 수정 필요</em></h2>
+        <div class="legend"><span><i style="background:var(--warn)"></i>확인 필요 ${bad}</span><span><i style="background:var(--ok-3)"></i>정상 ${n-bad}</span></div></div>
+    </div>`;
   $('slideList').innerHTML = slides.map(s=>`
-    <div class="card slide" tabindex="0" role="button" onclick="go('detail/${s.no}')" onkeydown="if(event.key==='Enter')this.click()">
-      <div class="no">S${s.no}</div>
-      <div class="txt"><b>${s.title}</b><small>${s.text}</small></div>
-      <span class="badge ${s.ok?'ok':'warn'}">${s.ok?'정상':'확인 필요'}</span>
+    <div class="card slide ${s.ok?'':'w'}" tabindex="0" role="button" onclick="go('detail/${s.no}')" onkeydown="if(event.key==='Enter')this.click()">
+      <div class="thumb">S${s.no}</div>
+      <div class="t"><b>${s.title}</b><small>${s.text}</small></div>
+      ${s.ok ? `<span class="badge ok">${ic('check')}정상</span>` : `<span class="badge w">${ic('alert')}확인 필요</span>`}
+      <span class="chev">${ic('chev')}</span>
     </div>`).join('');
 }
 function detail(no){
   const s = slides.find(x=>x.no===no), d = $('detail');
-  const back = `<button class="back" onclick="go('results')">← 결과 목록</button>`;
+  const back = `<button class="back" onclick="go('results')">${ic('back')}결과 목록</button>`;
   if (s.ok){
-    d.innerHTML = back + `<div class="card okbox"><div class="ck">✓</div><h3>원본과 일치함 ✓</h3>
-      <p class="sub" style="margin:0">S${s.no} · ${s.title}</p></div>
-      <div class="card"><div class="label">문장</div><div class="qbox">${s.text}</div>
-      <div class="label" style="margin-top:12px">연결된 근거</div><div class="qbox">${s.src}</div></div>`;
-  } else {
-    const max = s.funnel[0][1];
     d.innerHTML = back + `
-      <div class="card"><div class="label">S${s.no} · 문제 문장</div>
-        <div class="quote">${s.text.replace(s.hl, '<mark>'+s.hl+'</mark>')}</div></div>
-      <div class="card"><div class="label">📌 연결된 원본 설문 문항</div>
-        <div class="qbox"><span class="cond">${s.cond}</span><br>${s.q}</div></div>
-      <div class="card"><div class="label">발표 수치 vs 실제 응답</div>
+      <div class="card okhero"><div class="ck">${ic('check')}</div><h1>원본과 일치함 ✓</h1><p>S${s.no} · ${s.title}</p></div>
+      <div class="card"><div class="label">${ic('slides')}발표 문장</div><div class="quote">${s.text}</div></div>
+      <div class="card"><div class="label">${ic('pin')}연결된 근거</div>
+        <div class="kv" style="border:0;padding-top:0"><span>원본</span><b>${s.src}</b></div>
+        <div class="kv"><span>계산</span><b class="tab">${s.match}</b></div></div>`;
+  } else {
+    const k = s.dots, dots = Array.from({length:k.all},(_,i)=>`<i class="${i<k.yes?'y':i<k.sub?'s':''}"></i>`).join('');
+    d.innerHTML = back + `
+      <div class="dhead"><span class="sn">S${s.no}</span><h1>${s.title}</h1><span class="badge w">${ic('alert')}확인 필요</span></div>
+      <div class="card"><div class="label">${ic('slides')}발표 속 문장</div>
+        <div class="quote">${s.text.replace(s.hl,'<mark>'+s.hl+'</mark>')}</div>
+        <div class="issue">${ic('alert')}<span>${s.reason}</span></div></div>
+      <div class="card"><div class="label">${ic('pin')}연결된 원본 설문 문항</div>
+        <div class="q"><span class="cond">${ic('filter')}${s.cond}</span><p>${s.q}</p><div class="src">survey_responses.csv</div></div></div>
+      <div class="card"><div class="label">${ic('divide')}발표 수치 vs 실제 응답</div>
         <div class="vs">
-          <div class="claim"><div class="num">${s.claim.num}</div><small>${s.claim.note}</small></div>
-          <div class="arrow">→</div>
-          <div class="real"><div class="num">${s.real.num}</div><small>${s.real.note}</small></div>
+          <div class="box claim"><div class="k">발표</div><div class="num">${s.claim.num}<small>${s.claim.unit}</small></div><div class="d">${s.claim.d}</div></div>
+          <div class="arr">${ic('arrow')}</div>
+          <div class="box real"><div class="k">실제</div><div class="num">${s.real.num}<small>${s.real.unit}</small></div><div class="d">${s.real.d}</div></div>
         </div>
-        <div class="funnel">${s.funnel.map(([k,v])=>`<div class="row"><span>${k}</span><i style="width:${v/max*55}%"></i><em>${v}명</em></div>`).join('')}</div>
-        <p class="sub" style="margin:12px 0 0;font-size:13px">${s.reason}</p></div>
-      <div class="card"><div class="label">✏️ 제안 수정 문장</div><div class="fix">${s.fix}</div></div>
-      <button class="btn ok" id="applyBtn" onclick="apply(${s.no})">수정 반영</button>`;
+        <div class="dots" aria-label="전체 ${k.all}명 중 ${k.subL} ${k.sub}명, 그중 ${k.yes}명">${dots}</div>
+        <div class="dl"><span><i style="background:#e6e9f0"></i>전체 응답자 <b>${k.all}</b></span><span><i style="background:var(--navy-1);box-shadow:inset 0 0 0 1.5px var(--navy-5)"></i>${k.subL} <b>${k.sub}</b></span><span><i style="background:var(--ok)"></i>${k.yesL} <b>${k.yes}</b></span></div></div>
+      <div class="card"><div class="label">${ic('edit')}제안 수정 문장</div>
+        <p class="before">${s.text}</p><div class="fix">${s.fixHtml}</div></div>
+      <button class="btn ok" onclick="apply(${s.no})">${ic('check')}수정 반영</button>`;
   }
   show('detail');
 }
 function apply(no){
   const s = slides.find(x=>x.no===no);
-  Object.assign(s, {ok:true, text:s.fix, src:s.q+' — '+s.real.note});
-  renderResults();
+  Object.assign(s, {ok:true, text:s.fix, src:s.q});
   toast('S'+no+' 문장을 수정했어요');
-  setTimeout(()=>go('results'), 600);
+  setTimeout(()=>go('results'), 500);
 }
-function toast(msg){ const t=$('toast'); t.textContent=msg; t.classList.add('show'); setTimeout(()=>t.classList.remove('show'),1600); }
+function toast(msg){ const t=$('toast'); t.querySelector('span').textContent=msg; t.classList.add('show'); setTimeout(()=>t.classList.remove('show'),1600); }
 route();
 </script>
 </body>
